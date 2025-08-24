@@ -47,8 +47,13 @@ Meet **Sarah (35 years old):**
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/phms.git
-cd phms
+git clone git@github.com:imesharashi94/Personal-Health-Management-System.git
+cd Personal-Health-Management-System.
+```
+
+```bash
+git clone https://github.com/imesharashi94/Personal-Health-Management-System.git
+cd Personal-Health-Management-System.
 ```
 
 ### 2. Backend Setup (Laravel)
