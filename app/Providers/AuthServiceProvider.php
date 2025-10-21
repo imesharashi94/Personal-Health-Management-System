@@ -2,7 +2,13 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\LabReport;
+use App\Models\Medication;
+use App\Models\Symptom;
+use App\Policies\LabReportPolicy;
+use App\Policies\MedicationPolicy;
+use App\Policies\SymptomPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -13,7 +19,9 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        LabReport::class => LabReportPolicy::class,
+        Medication::class => MedicationPolicy::class,
+        Symptom::class => SymptomPolicy::class,
     ];
 
     /**
@@ -21,6 +29,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Define admin gate
+        Gate::define('admin', function ($user) {
+            return $user->isAdmin();
+        });
     }
 }
