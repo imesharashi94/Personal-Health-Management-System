@@ -25,7 +25,7 @@ export default function Authenticated({ user, header, children }) {
                                     Dashboard
                                 </NavLink>
                                 <NavLink href={route('labs.index')} active={route().current('labs.*')}>
-                                    Labs
+                                    Lab Reports
                                 </NavLink>
                                 <NavLink href={route('symptoms.index')} active={route().current('symptoms.*')}>
                                     Symptoms

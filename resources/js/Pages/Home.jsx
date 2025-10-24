@@ -88,13 +88,13 @@ export default function Home({ auth }) {
                             </div>
 
                             {/* Demo Credentials */}
-                            <div className="mt-12 p-6 bg-yellow-50 border border-yellow-200 rounded-lg max-w-xl mx-auto">
+                            {/* <div className="mt-12 p-6 bg-yellow-50 border border-yellow-200 rounded-lg max-w-xl mx-auto">
                                 <h4 className="font-semibold text-yellow-900 mb-2">🎯 Demo Credentials</h4>
                                 <div className="text-sm text-yellow-800 space-y-1">
                                     <p><strong>User:</strong> demo@phms.test / password</p>
                                     <p><strong>Admin:</strong> admin@phms.test / password</p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
