@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\LabReport;
-use App\Models\LabResult;
+use App\Models\Report;
+use App\Models\Observation;
 use App\Services\OcrService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +20,7 @@ class ParseLabReportJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public int $labReportId
+        public int $reportId
     ) {}
 
     /**
@@ -28,51 +28,59 @@ class ParseLabReportJob implements ShouldQueue
      */
     public function handle(OcrService $ocrService): void
     {
-        $labReport = LabReport::find($this->labReportId);
+        $report = Report::find($this->reportId);
 
-        if (!$labReport) {
-            Log::error('Lab report not found', ['id' => $this->labReportId]);
+        if (!$report) {
+            Log::error('Report not found', ['id' => $this->reportId]);
             return;
         }
 
         try {
-            // Extract text from the file
-            $text = $ocrService->extractText($labReport->file_path);
+            // Extract text from the file using OCR
+            $text = $ocrService->extractText($report->file_path);
 
             // Parse lab values from the text
             $parsedValues = $ocrService->parseLabValues($text);
 
             // Store the raw OCR text
-            $labReport->update([
-                'parsed_json' => ['text' => $text],
+            $report->update([
+                'parsed_json' => [
+                    'text' => $text,
+                    'extracted_values' => $parsedValues,
+                ],
                 'status' => 'parsed',
             ]);
 
-            // Create lab results
+            // Create observations from parsed values
             foreach ($parsedValues as $result) {
-                LabResult::create([
-                    'lab_report_id' => $labReport->id,
-                    'analyte' => $result['analyte'],
+                Observation::create([
+                    'user_id' => $report->user_id,
+                    'report_id' => $report->id,
+                    'observation_type' => 'lab_result',
+                    'metric_name' => $result['analyte'],
                     'value' => $result['value'],
                     'unit' => $result['unit'],
                     'ref_low' => $result['ref_low'],
                     'ref_high' => $result['ref_high'],
                     'flagged' => $result['flagged'],
+                    'observation_date' => $report->report_date,
+                    'source' => 'lab_report',
                 ]);
             }
 
-            Log::info('Lab report parsed successfully', [
-                'lab_report_id' => $labReport->id,
+            Log::info('Report parsed successfully', [
+                'report_id' => $report->id,
                 'results_count' => count($parsedValues),
+                'extracted_text_length' => strlen($text),
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to parse lab report', [
-                'lab_report_id' => $labReport->id,
+            Log::error('Failed to parse report', [
+                'report_id' => $report->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            $labReport->update(['status' => 'failed']);
+            $report->update(['status' => 'failed']);
         }
     }
 }

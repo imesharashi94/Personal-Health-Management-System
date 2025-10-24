@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
-use App\Models\HealthMetric;
-use App\Models\LabReport;
+use App\Models\Observation;
+use App\Models\Report;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,11 +22,11 @@ class ReportController extends Controller
     {
         // KPIs
         $totalUsers = User::count();
-        $activeUsers = User::whereHas('healthMetrics', function ($query) {
+        $activeUsers = User::whereHas('observations', function ($query) {
             $query->where('created_at', '>=', Carbon::now()->subDays(30));
         })->count();
 
-        $totalRecords = HealthMetric::count() + LabReport::count();
+        $totalRecords = Observation::count() + Report::count();
         
         $recentAlerts = Alert::where('triggered_at', '>=', Carbon::now()->subDays(7))
             ->whereNull('resolved_at')

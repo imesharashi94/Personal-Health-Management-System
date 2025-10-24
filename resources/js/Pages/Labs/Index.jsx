@@ -129,13 +129,13 @@ export default function LabsIndex({ auth, reports }) {
                                                         {report.report_date ? new Date(report.report_date).toLocaleDateString() : 'No date'}
                                                     </p>
                                                     <div className="mt-2 flex flex-wrap gap-2">
-                                                        {report.results?.slice(0, 3).map((result) => (
-                                                            <span key={result.id} className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${result.flagged ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                                {result.analyte}: {result.value} {result.unit}
+                                                        {report.observations?.slice(0, 3).map((observation) => (
+                                                            <span key={observation.id} className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${observation.flagged ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                                {observation.metric_name}: {observation.value} {observation.unit}
                                                             </span>
                                                         ))}
-                                                        {report.results?.length > 3 && (
-                                                            <span className="text-xs text-gray-500">+{report.results.length - 3} more</span>
+                                                        {report.observations?.length > 3 && (
+                                                            <span className="text-xs text-gray-500">+{report.observations.length - 3} more</span>
                                                         )}
                                                     </div>
                                                 </div>

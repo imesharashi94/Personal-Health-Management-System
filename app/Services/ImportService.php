@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\HealthMetric;
+use App\Models\Observation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -46,8 +46,8 @@ class ImportService
                 }
 
                 $mapped[] = [
-                    'date' => $date,
-                    'metric_type' => $metricType,
+                    'observation_date' => $date,
+                    'metric_name' => $metricType,
                     'value' => (float) $value,
                     'unit' => $unit,
                 ];
@@ -71,11 +71,12 @@ class ImportService
 
         foreach ($metrics as $metric) {
             try {
-                HealthMetric::updateOrCreate(
+                Observation::updateOrCreate(
                     [
                         'user_id' => $user->id,
-                        'date' => $metric['date'],
-                        'metric_type' => $metric['metric_type'],
+                        'observation_date' => $metric['observation_date'],
+                        'metric_name' => $metric['metric_name'],
+                        'observation_type' => 'health_metric',
                         'source' => $source,
                     ],
                     [

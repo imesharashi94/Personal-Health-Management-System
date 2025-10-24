@@ -81,11 +81,11 @@ export default function Dashboard({ auth, kpis, charts, alerts, latestLabReport 
                                 {latestLabReport.facility} • {new Date(latestLabReport.report_date).toLocaleDateString()}
                             </p>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {latestLabReport.results?.slice(0, 4).map((result) => (
-                                    <div key={result.id} className={`p-3 rounded ${result.flagged ? 'bg-red-50' : 'bg-gray-50'}`}>
-                                        <p className="text-xs text-gray-600">{result.analyte}</p>
-                                        <p className="text-lg font-semibold">{result.value} {result.unit}</p>
-                                        {result.flagged && <span className="text-xs text-red-600">⚠ Flagged</span>}
+                                {latestLabReport.observations?.slice(0, 4).map((observation) => (
+                                    <div key={observation.id} className={`p-3 rounded ${observation.flagged ? 'bg-red-50' : 'bg-gray-50'}`}>
+                                        <p className="text-xs text-gray-600">{observation.metric_name}</p>
+                                        <p className="text-lg font-semibold">{observation.value} {observation.unit}</p>
+                                        {observation.flagged && <span className="text-xs text-red-600">⚠ Flagged</span>}
                                     </div>
                                 ))}
                             </div>

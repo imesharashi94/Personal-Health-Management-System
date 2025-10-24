@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\ExportJob;
+use App\Models\Export;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -16,7 +16,7 @@ class ExportReadyNotification extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     public function __construct(
-        public ExportJob $exportJob
+        public Export $export
     ) {}
 
     /**
@@ -49,9 +49,9 @@ class ExportReadyNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'export_job_id' => $this->exportJob->id,
-            'file_path' => $this->exportJob->file_path,
-            'completed_at' => $this->exportJob->completed_at?->toISOString(),
+            'export_id' => $this->export->id,
+            'file_path' => $this->export->file_path,
+            'completed_at' => $this->export->completed_at?->toISOString(),
         ];
     }
 }

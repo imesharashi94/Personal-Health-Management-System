@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\LabReport;
+use App\Models\Report;
 use App\Models\User;
 
 class LabReportPolicy
@@ -18,9 +18,9 @@ class LabReportPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, LabReport $labReport): bool
+    public function view(User $user, Report $report): bool
     {
-        return $user->id === $labReport->user_id || $user->isAdmin();
+        return $user->id === $report->user_id || $user->isAdmin();
     }
 
     /**
@@ -34,17 +34,17 @@ class LabReportPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, LabReport $labReport): bool
+    public function update(User $user, Report $report): bool
     {
-        return $user->id === $labReport->user_id;
+        return $user->id === $report->user_id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, LabReport $labReport): bool
+    public function delete(User $user, Report $report): bool
     {
-        return $user->id === $labReport->user_id;
+        return $user->id === $report->user_id;
     }
 }
 

@@ -4,7 +4,7 @@ import DataTable from '@/Components/DataTable';
 
 export default function LabShow({ auth, report }) {
     const columns = [
-        { header: 'Analyte', accessor: 'analyte' },
+        { header: 'Analyte', accessor: 'metric_name' },
         { header: 'Value', accessor: 'value' },
         { header: 'Unit', accessor: 'unit' },
         {
@@ -44,7 +44,7 @@ export default function LabShow({ auth, report }) {
                     <div className="bg-white rounded-lg shadow overflow-hidden">
                         <DataTable
                             columns={columns}
-                            data={report.results}
+                            data={report.observations}
                             emptyMessage="No results available for this report."
                         />
                     </div>

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\LabReport;
+use App\Models\Report;
 use App\Models\Medication;
 use App\Models\Symptom;
 use App\Policies\LabReportPolicy;
@@ -19,7 +19,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        LabReport::class => LabReportPolicy::class,
+        Report::class => LabReportPolicy::class,
         Medication::class => MedicationPolicy::class,
         Symptom::class => SymptomPolicy::class,
     ];

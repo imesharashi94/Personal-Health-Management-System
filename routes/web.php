@@ -49,9 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Lab Reports
     Route::prefix('labs')->name('labs.')->group(function () {
         Route::get('/', [LabController::class, 'index'])->name('index');
-        Route::get('/{labReport}', [LabController::class, 'show'])->name('show');
+        Route::get('/{report}', [LabController::class, 'show'])->name('show');
         Route::post('/upload', [LabController::class, 'upload'])->name('upload');
-        Route::post('/{labReport}/parse', [LabController::class, 'parse'])->name('parse');
+        Route::post('/{report}/parse', [LabController::class, 'parse'])->name('parse');
     });
 
     // Symptoms
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('export')->name('export.')->group(function () {
         Route::get('/', [ExportController::class, 'index'])->name('index');
         Route::post('/run', [ExportController::class, 'run'])->name('run');
-        Route::get('/{exportJob}/download', [ExportController::class, 'download'])->name('download');
+        Route::get('/{export}/download', [ExportController::class, 'download'])->name('download');
     });
 
     // Settings
