@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ExportRequest;
-use App\Models\ExportJob;
-use App\Models\HealthMetric;
-use App\Models\LabReport;
+use App\Models\Export;
+use App\Models\Observation;
+use App\Models\Report;
 use App\Models\Medication;
 use App\Models\Symptom;
 use Carbon\Carbon;
@@ -19,7 +19,7 @@ class ExportController extends Controller
     {
         $user = $request->user();
 
-        $exports = ExportJob::where('user_id', $user->id)
+        $exports = Export::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -35,8 +35,8 @@ class ExportController extends Controller
         
         $params = $request->validated();
         
-        // Create export job record
-        $exportJob = ExportJob::create([
+        // Create export record
+        $export = Export::create([
             'user_id' => $user->id,
             'params' => $params,
             'status' => 'running',
@@ -47,12 +47,12 @@ class ExportController extends Controller
             $csv = $this->generateCsv($user->id, $params);
             
             // Store file
-            $filename = 'export_' . $exportJob->id . '_' . now()->format('Y-m-d_His') . '.csv';
+            $filename = 'export_' . $export->id . '_' . now()->format('Y-m-d_His') . '.csv';
             $path = 'exports/' . $filename;
             Storage::put($path, $csv);
 
-            // Update export job
-            $exportJob->update([
+            // Update export
+            $export->update([
                 'file_path' => $path,
                 'status' => 'done',
                 'completed_at' => now(),
@@ -60,23 +60,23 @@ class ExportController extends Controller
 
             return back()->with('success', 'Export completed successfully.');
         } catch (\Exception $e) {
-            $exportJob->update(['status' => 'failed']);
+            $export->update(['status' => 'failed']);
             
             return back()->with('error', 'Export failed: ' . $e->getMessage());
         }
     }
 
-    public function download(ExportJob $exportJob)
+    public function download(Export $export)
     {
-        if ($exportJob->user_id !== auth()->id()) {
+        if ($export->user_id !== auth()->id()) {
             abort(403);
         }
 
-        if (!$exportJob->file_path || !Storage::exists($exportJob->file_path)) {
+        if (!$export->file_path || !Storage::exists($export->file_path)) {
             return back()->with('error', 'Export file not found.');
         }
 
-        return Storage::download($exportJob->file_path);
+        return Storage::download($export->file_path);
     }
 
     private function generateCsv(int $userId, array $params): string
@@ -90,19 +90,20 @@ class ExportController extends Controller
 
         // Health metrics
         if (in_array('steps', $metricTypes) || in_array('hr', $metricTypes) || in_array('sleep', $metricTypes)) {
-            $metrics = HealthMetric::where('user_id', $userId)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('metric_type', array_intersect($metricTypes, ['steps', 'hr', 'sleep']))
-                ->orderBy('date')
+            $observations = Observation::where('user_id', $userId)
+                ->where('observation_type', 'health_metric')
+                ->whereBetween('observation_date', [$startDate, $endDate])
+                ->whereIn('metric_name', array_intersect($metricTypes, ['steps', 'hr', 'sleep']))
+                ->orderBy('observation_date')
                 ->get();
 
-            foreach ($metrics as $metric) {
+            foreach ($observations as $observation) {
                 $rows[] = [
                     'health_metric',
-                    $metric->date->format('Y-m-d'),
-                    $metric->metric_type,
-                    $metric->value,
-                    $metric->unit,
+                    $observation->observation_date->format('Y-m-d'),
+                    $observation->metric_name,
+                    $observation->value,
+                    $observation->unit,
                     '',
                 ];
             }
@@ -110,22 +111,20 @@ class ExportController extends Controller
 
         // Labs
         if (in_array('labs', $metricTypes)) {
-            $labReports = LabReport::where('user_id', $userId)
-                ->whereBetween('report_date', [$startDate, $endDate])
-                ->with('results')
+            $observations = Observation::where('user_id', $userId)
+                ->where('observation_type', 'lab_result')
+                ->whereBetween('observation_date', [$startDate, $endDate])
                 ->get();
 
-            foreach ($labReports as $report) {
-                foreach ($report->results as $result) {
-                    $rows[] = [
-                        'lab_result',
-                        $report->report_date->format('Y-m-d'),
-                        $result->analyte,
-                        $result->value,
-                        $result->unit,
-                        $result->flagged ? 'FLAGGED' : '',
-                    ];
-                }
+            foreach ($observations as $observation) {
+                $rows[] = [
+                    'lab_result',
+                    $observation->observation_date->format('Y-m-d'),
+                    $observation->metric_name,
+                    $observation->value,
+                    $observation->unit,
+                    $observation->flagged ? 'FLAGGED' : '',
+                ];
             }
         }
 

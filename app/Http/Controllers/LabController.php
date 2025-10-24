@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UploadReportRequest;
 use App\Jobs\ParseLabReportJob;
 use App\Models\AuditLog;
-use App\Models\LabReport;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +17,8 @@ class LabController extends Controller
     {
         $user = $request->user();
 
-        $reports = LabReport::where('user_id', $user->id)
-            ->with('results')
+        $reports = Report::where('user_id', $user->id)
+            ->with('observations')
             ->orderBy('report_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -28,18 +28,18 @@ class LabController extends Controller
         ]);
     }
 
-    public function show(Request $request, LabReport $labReport)
+    public function show(Request $request, Report $report)
     {
-        Gate::authorize('view', $labReport);
+        Gate::authorize('view', $report);
 
-        $labReport->load('results');
+        $report->load('observations');
 
         // Audit log
         AuditLog::create([
             'user_id' => $request->user()->id,
             'action' => 'view',
-            'entity' => 'lab_report',
-            'entity_id' => $labReport->id,
+            'entity' => 'report',
+            'entity_id' => $report->id,
             'meta' => [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -47,39 +47,42 @@ class LabController extends Controller
         ]);
 
         return Inertia::render('Labs/Show', [
-            'report' => $labReport,
+            'report' => $report,
         ]);
     }
 
     public function upload(UploadReportRequest $request)
     {
+        logger($request->all());
+
         $user = $request->user();
 
         // Store the uploaded file
         $file = $request->file('file');
         $path = $file->store('lab_reports', 'local');
 
-        // Create lab report record
-        $labReport = LabReport::create([
+        // Create report record
+        $report = Report::create([
             'user_id' => $user->id,
             'file_path' => $path,
             'report_date' => $request->report_date,
             'facility' => $request->facility,
             'status' => 'uploaded',
+            'report_type' => 'lab_report',
         ]);
 
         // Dispatch parsing job
-        ParseLabReportJob::dispatch($labReport->id);
+        ParseLabReportJob::dispatch($report->id);
 
         return back()->with('success', 'Lab report uploaded successfully. OCR parsing is in progress.');
     }
 
-    public function parse(Request $request, LabReport $labReport)
+    public function parse(Request $request, Report $report)
     {
-        Gate::authorize('update', $labReport);
+        Gate::authorize('update', $report);
 
         // Re-queue parsing job
-        ParseLabReportJob::dispatch($labReport->id);
+        ParseLabReportJob::dispatch($report->id);
 
         return back()->with('success', 'Lab report parsing has been re-queued.');
     }

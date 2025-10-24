@@ -17,6 +17,7 @@ class Medication extends Model
         'dose',
         'unit',
         'notes',
+        'session_id',
     ];
 
     protected $casts = [
@@ -26,6 +27,11 @@ class Medication extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(Session::class);
     }
 
     public function schedules(): HasMany

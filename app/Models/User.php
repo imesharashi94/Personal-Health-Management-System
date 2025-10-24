@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'timezone',
         'role',
+        'preferred_language',
+        'preferences',
     ];
 
     /**
@@ -44,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'preferences' => 'array',
     ];
 
     /**
@@ -57,14 +60,14 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationships
      */
-    public function healthMetrics(): HasMany
+    public function observations(): HasMany
     {
-        return $this->hasMany(HealthMetric::class);
+        return $this->hasMany(Observation::class);
     }
 
-    public function labReports(): HasMany
+    public function reports(): HasMany
     {
-        return $this->hasMany(LabReport::class);
+        return $this->hasMany(Report::class);
     }
 
     public function symptoms(): HasMany
@@ -87,13 +90,28 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Consent::class);
     }
 
-    public function exportJobs(): HasMany
+    public function exports(): HasMany
     {
-        return $this->hasMany(ExportJob::class);
+        return $this->hasMany(Export::class);
     }
 
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    public function bundles(): HasMany
+    {
+        return $this->hasMany(Bundle::class);
+    }
+
+    public function trends(): HasMany
+    {
+        return $this->hasMany(Trend::class);
     }
 }

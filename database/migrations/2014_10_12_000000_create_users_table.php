@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('timezone')->default('Asia/Colombo');
             $table->enum('role', ['user', 'admin'])->default('user');
+            $table->string('preferred_language', 10)->default('en');
+            $table->json('preferences')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

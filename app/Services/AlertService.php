@@ -3,8 +3,7 @@
 namespace App\Services;
 
 use App\Models\Alert;
-use App\Models\HealthMetric;
-use App\Models\LabResult;
+use App\Models\Observation;
 use App\Models\Symptom;
 use App\Models\User;
 use App\Notifications\AlertNotification;
@@ -55,13 +54,11 @@ class AlertService
      */
     private function checkHighLdl(User $user): ?array
     {
-        $latestLdl = LabResult::whereHas('labReport', function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                ->where('status', 'parsed');
-        })
-        ->where('analyte', 'LDL')
-        ->orderBy('created_at', 'desc')
-        ->first();
+        $latestLdl = Observation::where('user_id', $user->id)
+            ->where('observation_type', 'lab_result')
+            ->where('metric_name', 'LDL')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         if ($latestLdl && $latestLdl->value > 160) {
             return [
@@ -105,9 +102,10 @@ class AlertService
     private function checkLowSleepWithSymptoms(User $user): ?array
     {
         // Check recent sleep
-        $recentSleep = HealthMetric::where('user_id', $user->id)
-            ->where('metric_type', 'sleep')
-            ->where('date', '>=', Carbon::now()->subDays(1))
+        $recentSleep = Observation::where('user_id', $user->id)
+            ->where('observation_type', 'health_metric')
+            ->where('metric_name', 'sleep')
+            ->where('observation_date', '>=', Carbon::now()->subDays(1))
             ->first();
 
         if (!$recentSleep || $recentSleep->value >= 5) {
@@ -153,6 +151,7 @@ class AlertService
             'message' => $alertData['message'],
             'level' => $alertData['level'],
             'triggered_at' => now(),
+            'observation_id' => $alertData['observation_id'] ?? null,
         ]);
 
         // Send notification

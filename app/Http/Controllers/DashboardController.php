@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alert;
-use App\Models\LabReport;
+use App\Models\Report;
 use App\Services\TrendService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -40,9 +40,9 @@ class DashboardController extends Controller
             ->get();
 
         // Latest lab report summary
-        $latestLabReport = LabReport::where('user_id', $user->id)
+        $latestReport = Report::where('user_id', $user->id)
             ->where('status', 'parsed')
-            ->with('results')
+            ->with('observations')
             ->orderBy('report_date', 'desc')
             ->first();
 
@@ -50,7 +50,7 @@ class DashboardController extends Controller
             'kpis' => $kpis,
             'charts' => $charts,
             'alerts' => $alerts,
-            'latestLabReport' => $latestLabReport,
+            'latestReport' => $latestReport,
         ]);
     }
 }

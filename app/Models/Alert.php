@@ -17,6 +17,7 @@ class Alert extends Model
         'level',
         'triggered_at',
         'resolved_at',
+        'observation_id',
     ];
 
     protected $casts = [
@@ -27,6 +28,11 @@ class Alert extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function observation(): BelongsTo
+    {
+        return $this->belongsTo(Observation::class);
     }
 
     public function isResolved(): bool

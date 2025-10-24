@@ -6,21 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Export extends Model
+class Bundle extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'params',
-        'file_path',
-        'status',
-        'completed_at',
+        'bundle_type',
+        'data',
+        'created_at',
     ];
 
     protected $casts = [
-        'params' => 'array',
-        'completed_at' => 'datetime',
+        'data' => 'array',
+        'created_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -28,4 +27,3 @@ class Export extends Model
         return $this->belongsTo(User::class);
     }
 }
-

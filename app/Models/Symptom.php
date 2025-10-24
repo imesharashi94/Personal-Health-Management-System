@@ -16,6 +16,7 @@ class Symptom extends Model
         'severity',
         'notes',
         'recorded_at',
+        'session_id',
     ];
 
     protected $casts = [
@@ -26,6 +27,11 @@ class Symptom extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(Session::class);
     }
 }
 
